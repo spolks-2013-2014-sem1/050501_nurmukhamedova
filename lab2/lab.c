@@ -15,7 +15,7 @@ int main()
 	unsigned int addr_ins = sizeof(addr_in);
 	char msg[21];
 	int t, i;
-	sock1 = sock("2200","TCP",5);
+	sock1 = sock("2300","TCP",5);
 	
 	if(sock1 <0)
 		return -1;
@@ -27,7 +27,7 @@ int main()
 		else
 		{
 
-			for(i =0 ; i< 5; i++)
+			while(1)
 			{
 			 	read(sock2,msg, sizeof(msg));
 				write(sock2,msg,sizeof(msg));
@@ -38,7 +38,6 @@ int main()
 		}
 	}
 	close(sock1);
-	shutdown(sock1, SHUT_RDWR);
 	return 0;
 }
 
