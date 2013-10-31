@@ -5,43 +5,50 @@
 #include <string.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
-int sock(const char *port,const char *transp, int qlen);
+int sock(char* port,const char *transp);
 
-int main()
+int main(int argc, char** argv)
 {
-	int sock1,sock2;
+	int sock_s,sock_c;
 	struct sockaddr_in addr_in;
 	unsigned int addr_ins = sizeof(addr_in);
-	char msg[21];
-	int t, i;
-	sock1 = sock("2300","TCP",5);
-	
-	if(sock1 <0)
+	char msg[2048];
+	int r_byte;
+	char *port = argv[1];
+	 
+	sock_s = sock(port,"TCP");
+	memset(&msg,0,sizeof(msg));
+
+	if(sock_s <0)
 		return -1;
 	while(1)
 	{
-		sock2 = accept(sock1, (struct sockaddr*)&addr_in, &addr_ins);
-		if(sock2 < 0)
+		sock_c = accept(sock_s, (struct sockaddr*)&addr_in, &addr_ins);
+		if(sock_c < 0)
 			printf("Error of connection");
 		else
 		{
-
 			while(1)
 			{
-			 	read(sock2,msg, sizeof(msg));
-				write(sock2,msg,sizeof(msg));
+			 	r_byte = read(sock_c,msg, sizeof(msg));
+				if(r_byte == 2)
+				{
+					close(sock_c); 
+					break;
+				}
+				write(sock_c,msg,sizeof(msg));
 				memset(&msg,0,sizeof(msg));
 			
 			}
-			close(sock2);
 		}
 	}
-	close(sock1);
+	close(sock_s);
 	return 0;
 }
 
-int sock(const char *port, const char *transp, int qlen)
+int sock(char* port, const char *transp)
 {
 	struct sockaddr_in sin;
 	int s;
@@ -62,7 +69,7 @@ int sock(const char *port, const char *transp, int qlen)
 		return -1;
 	}
 	
-	if(listen(s,qlen) < 0)
+	if(listen(s,5) < 0)
 	{
 		printf("Error of listen\n");
 		return -1;
